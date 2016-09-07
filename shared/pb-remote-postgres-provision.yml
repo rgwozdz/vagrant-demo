@@ -1,0 +1,23 @@
+# Required vars: db_name, s3_backup
+
+- name: Configure to-app-db instance(s)
+  hosts: target_host
+  become: True
+  become_method: sudo
+
+  vars:
+    db_name: my_database
+    pg_hba_additions:
+      - host all all 0.0.0.0/0 trust
+    pg_listen_all: True
+    postgres_user_password: pA$$W0rD!
+  
+  pre_tasks:
+    
+    - name: ensure packages are installed
+      apt: name={{item}}
+      with_items:
+        - acl 
+  roles:
+  - ansible-role_postgres9.4.5-postgis2.1
+

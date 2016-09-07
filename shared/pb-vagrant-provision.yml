@@ -1,0 +1,40 @@
+# Required vars: db_name, s3_backup
+
+- name: Configure to-app-db instance(s)
+  hosts: localhost
+  become: True
+  become_method: sudo
+
+  tasks:
+  - name: ensure apt cache is up to date
+    apt: update_cache=yes cache_valid_time=86400
+
+  - name: dist-upgrade
+    apt: upgrade=dist cache_valid_time=86400
+
+  - name: ensure packages are installed
+    apt: name={{item}}
+    with_items:
+        - git
+        - ansible
+        - acl
+
+  - name: Make a directory for roles
+    file: path=/home/vagrant/roles/ state=directory
+
+  - name: GET ansible-role_postgres9.4.5-postgis2.1 repository
+    git:
+      accept_hostkey: yes
+      repo: "https://github.com/spatialdev/ansible-role_postgres9.4.5-postgis2.1.git"
+      dest: "/home/vagrant/shared/roles/ansible-role_postgres9.4.5-postgis2.1"
+      version: "master"
+    become_user: vagrant
+
+  - name: Add ssh-connection instructions
+    blockinfile:
+      dest: /etc/ansible/ansible.cfg
+      marker: "# {mark} ANSIBLE MANAGED SSH CONNECTION BLOCK"
+      insertafter: \[\bssh_connection\]
+      content: |
+         ssh_args = -F ssh.cfg
+         control_path = ~/.ssh/%r@%h:%p

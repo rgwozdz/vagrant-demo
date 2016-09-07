@@ -1,0 +1,15 @@
+#####################################################
+# target_host
+#####################################################
+Host <ip-address-for-target-server>
+  User ubuntu
+  IdentityFile /home/vagrant/shared/key-files/<private-key-file-for-target-server>
+  PasswordAuthentication no
+  ForwardAgent yes
+  ServerAliveInterval 60
+  TCPKeepAlive yes
+  ControlMaster auto
+  ControlPath ~/.ssh/%r@%h:%p
+  ControlPersist 15m
+  ProxyCommand none
+
